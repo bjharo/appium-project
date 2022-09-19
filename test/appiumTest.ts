@@ -59,6 +59,7 @@ describe('Appium Test', function () {
 
         await driver.startActivity(ProjectCapabilities.appInformation.dialerAppPackage, ProjectCapabilities.appInformation.dialerAppActivity);
        
+        await views.dialerContacts.openContactsTab();
         await views.dialerContacts.searchForContact(`${contact.firstName} ${contact.lastName}`);
         await views.dialerContacts.callContactFromSearchResults(contact.firstName, contact.lastName);
 

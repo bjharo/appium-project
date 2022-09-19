@@ -15,7 +15,7 @@ export default class DialerCallView extends BaseView {
         const element = await this.getElement(this.locators.hangUpBtn);
         await element.click();
         await element.waitForExist( {
-            timeout: 10000,
+            timeout: 20000,
             reverse: true
         });
     }
