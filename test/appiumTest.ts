@@ -71,8 +71,9 @@ describe('Appium Test', function () {
 
         await views.contactsList.searchForAndOpenContact(contact.firstName, contact.lastName);
         await views.contactCard.deleteContact();
+        await views.contactsList.stopSearching();
 
-        expect(await views.contactsList.getTotalContactsLabel()).to.equal('No contacts');
+        expect(await views.contactsList.isContactListed(contact.firstName, contact.lastName)).to.be.false;
     });
 
     after(async function () {

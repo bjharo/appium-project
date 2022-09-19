@@ -8,7 +8,7 @@ export default class ContactListView extends BaseView {
         searchContactsBtn: '~Search contacts',
         searchField: 'id:com.android.contacts:id/search_view',
         stopSearchArrow: '~stop searching',
-        totalContactsLabel: 'id:com.android.contacts:id/totalContactsText'
+        contactsMessage: 'id:com.android.contacts:id/message'
     };
 
     constructor(driver: Browser<'async'>) {
@@ -23,6 +23,8 @@ export default class ContactListView extends BaseView {
     }
 
     public async openAddNewContactView(): Promise<void> {
+        this.closeNotificationPrompt();
+        
         const newContactBtn = await this.getElement(this.locators.newContactBtn);
         await newContactBtn.click();
     }
@@ -43,8 +45,30 @@ export default class ContactListView extends BaseView {
         await element.click();
     }
 
-    public async getTotalContactsLabel(): Promise<string> {
-        const element = await this.getElement(this.locators.totalContactsLabel);
-        return await element.getText();
+    public async isContactListed(firstName: string, lastName: string): Promise<boolean> {
+        // if there are no contact, the search button won't be displayed
+        if (await this.driver.$(this.locators.searchContactsBtn).isDisplayed() === false) {
+            const messageElement = await this.getElement(this.locators.contactsMessage);
+
+            if (await messageElement.getText() === 'Your contacts list is empty') {
+                return false;
+            } else {
+                throw new Error(`Could not properly determine the presence of a contact with the name: ${firstName} ${lastName}`);
+            }
+        }
+
+        const searchBtn = await this.getElement(this.locators.searchContactsBtn);
+        
+        await searchBtn.click();
+
+        const searchField = await this.getElement(this.locators.searchField);
+        await searchField.setValue(`${firstName} ${lastName}`);
+
+        try {
+            await this.driver.$(`~${firstName} ${lastName}`).waitForExist({ timeout: 2500 });
+            return true;
+        } catch {
+            return false;
+        }
     }
 }
