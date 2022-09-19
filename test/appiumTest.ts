@@ -1,12 +1,12 @@
 import { remote, RemoteOptions, Browser } from 'webdriverio';
 import { faker } from '@faker-js/faker';
 import { expect } from 'chai';
-import ProjectCapabilities from './projectCapabilities';
-import ContactListView from './viewObjects/contacts/contactsListView';
-import NewContactView from './viewObjects/contacts/newContactView';
-import ContactCardView from './viewObjects/contacts/contactCardView';
-import DialerContactsView from './viewObjects/dialer/dialerContactsView';
-import DialerCallView from './viewObjects/dialer/dialerCallView';
+import ProjectCapabilities from '../projectCapabilities';
+import ContactListView from '../src/contacts/contactsListView';
+import NewContactView from '../src/contacts/newContactView';
+import ContactCardView from '../src/contacts/contactCardView';
+import DialerContactsView from '../src/dialer/dialerContactsView';
+import DialerCallView from '../src/dialer/dialerCallView';
 
 interface Person {
     firstName: string,
@@ -18,15 +18,15 @@ interface Person {
 }
 
 describe('Appium Test', function () {
-	let driver: Browser<'async'>;
-	this.timeout(180000);
+    let driver: Browser<'async'>;
+    this.timeout(180000);
 
-	before(async function () {
-		const remoteOptions: RemoteOptions = ProjectCapabilities.androidBaseCapabilities();
-		driver = await remote(remoteOptions);
-	});
+    before(async function () {
+        const remoteOptions: RemoteOptions = ProjectCapabilities.androidBaseCapabilities();
+        driver = await remote(remoteOptions);
+    });
 
-	it('Add new contact, call them and delete contact', async function () {
+    it('Add new contact, call them and delete contact', async function () {
         const contact: Person = {
             firstName: faker.name.firstName(),
             lastName: faker.name.lastName().replace('\'', ''), // last name is used in locators and a single quote can cause issues
@@ -58,9 +58,10 @@ describe('Appium Test', function () {
         expect(await views.contactCard.isCommunicationTypeListed('Email', 'Home', contact.email)).to.be.true;
 
         await driver.startActivity(ProjectCapabilities.appInformation.dialerAppPackage, ProjectCapabilities.appInformation.dialerAppActivity);
+       
         await views.dialerContacts.searchForContact(`${contact.firstName} ${contact.lastName}`);
         await views.dialerContacts.callContactFromSearchResults(contact.firstName, contact.lastName);
-        
+
         expect(await views.dialerCall.getContactName()).to.equal(`${contact.firstName} ${contact.lastName}`);
 
         await views.dialerCall.hangUp();
@@ -70,11 +71,11 @@ describe('Appium Test', function () {
         await views.contactsList.searchForAndOpenContact(contact.firstName, contact.lastName);
         await views.contactCard.deleteContact();
         await views.contactsList.stopSearching();
-        
-        expect(await views.contactsList.isContactListed(contact.firstName, contact.lastName)).to.be.false;
-	});
 
-	after(async function () {
-		await driver.deleteSession();
-	});
+        expect(await views.contactsList.isContactListed(contact.firstName, contact.lastName)).to.be.false;
+    });
+
+    after(async function () {
+        await driver.deleteSession();
+    });
 });
