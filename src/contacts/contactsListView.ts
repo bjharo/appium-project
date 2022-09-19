@@ -1,4 +1,3 @@
-import { StringMappingType } from 'typescript';
 import { Browser } from 'webdriverio';
 import BaseView from '../baseView';
 
@@ -8,7 +7,8 @@ export default class ContactListView extends BaseView {
         newContactBtn: '~Create new contact',
         searchContactsBtn: '~Search contacts',
         searchField: 'id:com.android.contacts:id/search_view',
-        stopSearchArrow: '~stop searching'
+        stopSearchArrow: '~stop searching',
+        totalContactsLabel: 'id:com.android.contacts:id/totalContactsText'
     };
 
     constructor(driver: Browser<'async'>) {
@@ -43,18 +43,8 @@ export default class ContactListView extends BaseView {
         await element.click();
     }
 
-    public async isContactListed(firstName: string, lastName: string): Promise<boolean> {
-        const searchBtn = await this.getElement(this.locators.searchContactsBtn);
-        await searchBtn.click();
-
-        const searchField = await this.getElement(this.locators.searchField);
-        await searchField.setValue(`${firstName} ${lastName}`);
-
-        try {
-            await this.driver.$(`~${firstName} ${lastName}`).waitForExist({ timeout: 2500 });
-            return true;
-        } catch {
-            return false;
-        }
+    public async getTotalContactsLabel(): Promise<string> {
+        const element = await this.getElement(this.locators.totalContactsLabel);
+        return await element.getText();
     }
 }

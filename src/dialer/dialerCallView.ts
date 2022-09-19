@@ -22,6 +22,16 @@ export default class DialerCallView extends BaseView {
 
     public async getContactName(): Promise<string> {
         const element = await this.getElement(this.locators.contactName);
+        
+        // the dialer can be slow to load so wait until this element has some text
+        await this.driver.waitUntil(
+            async() => (await element.getText() !== ''),
+            {
+                timeout: 10000,
+                timeoutMsg: 'The contact name label never populated with a name.' 
+            }
+        );
+
         return await element.getText();
     }
 }
